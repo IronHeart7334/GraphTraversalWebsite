@@ -1,2 +1,2 @@
 # Graph Traversal Website
- will add description later
+ Yup, totally not Wayfinding.
