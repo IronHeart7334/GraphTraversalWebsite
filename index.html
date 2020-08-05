@@ -1,17 +1,44 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head>
+    <head lang="en">
         <meta charset="utf-8">
         <title>Graph Traversal</title>
-        <base href="../">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <link rel="stylesheet" href="/css/stylesheet.css">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     </head>
     <body>
-        <div id="body">
-            <h1>Example text here</h1>
+        <!-- make this into a form -->
+        <div id="body" class="container-fluid">
+            <div id="input" class="row w-100">
+                <div class="col">
+                    <select id="start" name="start">
+
+                    </select>
+                </div>
+                <div class="col">
+                    <select id="end" name="end">
+
+                    </select>
+                </div>
+            </div>
+            <div class="row w-100 justify-content-center">
+                <div class="col">
+                    <button>Submit</button>
+                </div>
+            </div>
+
+            <div class="row w-100">
+                <div class="col">
+                    <!-- This will render the map image, paths, and points -->
+                    <!-- Use this instead of image tag -->
+                    <canvas id="map" class="w-100"></canvas>
+                </div>
+            </div>
+
+            <div id="toolbar" class="row w-100"></div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
