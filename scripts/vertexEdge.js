@@ -45,6 +45,24 @@ class Vertex {
             }
         }
     }
+
+    distanceFrom(vertex2){
+        return Math.sqrt(Math.pow(vertex2.x - this.x, 2), Math.pow(vertex2.y - this.y, 2));
+    }
+}
+
+class Edge {
+    constructor(from, to){
+        this.from = from;
+        this.to = to;
+        this.length = from.distanceFrom(to);
+    }
+}
+
+class Path {
+    constructor(...vertices){
+        this.vertices = vertices;
+    }
 }
 
 
@@ -58,5 +76,6 @@ n.addNeighbor(5);
 n.addNeighbor(5);
 
 export {
-    Vertex
+    Vertex,
+    Path
 };
