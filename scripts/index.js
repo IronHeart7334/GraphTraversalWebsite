@@ -1,9 +1,13 @@
 import {
-    downloadFile
+    downloadFile,
+    downloadVersionLog
 } from "./importData.js";
 
 import {
     Vertex
 } from "./vertexEdge.js";
 
-downloadFile("../data/testCoords.csv").then((t)=>console.log(t));
+const VERSION_LOG_URL = "../data/versionLog.csv";
+
+//downloadFile("../data/testCoords.csv").then((t)=>console.log(t));
+downloadVersionLog(VERSION_LOG_URL).then((vlog)=>console.log(vlog));

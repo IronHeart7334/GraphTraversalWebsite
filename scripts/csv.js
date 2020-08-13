@@ -18,6 +18,10 @@ class CsvFile {
         });
     }
 
+    getHeaders(){
+        return this.headerRow;
+    }
+
     getBody(){
         return this.body;
     }
@@ -28,5 +32,5 @@ responseText: string
 returns CsvFile
 */
 function parseResponseText(responseText){
-
+    throw "not done with csv.js!";
 }
