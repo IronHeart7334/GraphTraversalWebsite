@@ -90,7 +90,15 @@ class Graph {
 
     prettyPrintGraphData(){
         console.log("GRAPH:");
-        
+        console.log("  VERTICES:");
+        this.idToVertex.values().forEach((vertex)=>{
+            console.log("    " + vertex.toString());
+        });
+        console.log("  LABELS:");
+        //                     Map::forEach is backwards like this, right?
+        this.labelToId.forEach((id, label)=>{
+            console.log(`    ${label} => ${id}`);
+        });
         console.log("END OF GRAPH");
     }
 }
