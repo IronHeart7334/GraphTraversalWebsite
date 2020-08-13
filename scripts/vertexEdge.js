@@ -9,7 +9,7 @@ class Vertex {
         this.y = y;
 
         this.neighborIds = [];
-        this.identifiers = [];
+        this.labels = [];
     }
 
     isAdjTo(id){
@@ -65,6 +65,35 @@ class Path {
     }
 }
 
+class Graph {
+    constructor(){
+        this.idToVertex = new Map();
+        this.labelToId = new Map();
+    }
+
+    addVertex(vertex){
+        this.idToVertex.set(vertex.id, vertex);
+        vertex.labels.forEach((lable)=>{
+            this.labelToId.set(label, vertex.id);
+        });
+    }
+
+    // maybe make an addEdge(vertex1, vertex2) method
+
+    getVertexById(id){
+        return this.idToVertex.get(id);
+    }
+
+    getVertexByLabel(label){
+        return this.labelToId.get(label);
+    }
+
+    prettyPrintGraphData(){
+        console.log("GRAPH:");
+        
+        console.log("END OF GRAPH");
+    }
+}
 
 let n = new Vertex(1, 1, 1);
 n.addNeighbor(5);
