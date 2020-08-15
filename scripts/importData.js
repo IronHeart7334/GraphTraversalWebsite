@@ -11,6 +11,12 @@ class Manifest {
     }
 }
 
+/*
+Version Logs are currently stored as CSV files to maintain backwards compatibility
+with the old Wayfinding system. Future versions of this application will instead
+store version log data as JSON or some other format, as the current CSV format
+leaves empty cells when one version has more manifests than others.
+*/
 class VersionLog {
     constructor(){
         this.versionNameToManifests = new Map();
@@ -40,7 +46,7 @@ async function downloadVersionLog(url){
     let rawText = await downloadFile(url);
     let vlog = new VersionLog();
     let csv = parseResponseText(rawText);
-    console.log(csv);
+    console.log(csv.toString());
     return vlog;
 }
 

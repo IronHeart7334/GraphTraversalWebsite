@@ -6,6 +6,20 @@ This file is used to convert fetch response text to CsvFile objects.
 const NEWLINE_REGEX = /\r?\n|\r/;
 //                          or just \r
 
+const LONGEST_STRING_LENGTH_IN_ARRAY = (longestSoFar, currentStr)=>{
+    return (currentStr.length < longestSoFar) ? longestSoFar : currentStr.length;
+};
+const LONGEST_STRING_LENGTH_IN_ARRAY_OF_ARRAYS = (longestSoFar, currentRow)=>{
+    let currRowLongest = currentRow.reduce(LONGEST_STRING_LENGTH_IN_ARRAY, 0);
+    return (currRowLongest < longestSoFar) ? longestSoFar : currRowLongest;
+};
+
+function padJoinArray(array, len){
+    //                                  adds spaces to the end until it is at least len characters long.
+    return array.map((element)=>element.padEnd(len, ' ')).join(", ");
+}
+
+// TODO: add cell / header sanitizer
 class CsvFile {
     constructor(headers=[]){
         this.headerRow = [];
@@ -20,7 +34,7 @@ class CsvFile {
     }
 
     addHeader(header){
-        header = header.toUpperCase();
+        header = header.toUpperCase().trim();
         if(!this.hasHeader(header)){
             this.headerToCol.set(header, this.headerRow.length);
             this.headerRow.push(header);
@@ -35,20 +49,28 @@ class CsvFile {
         return this.headerToCol.has(header.toUpperCase());
     }
 
-    addRow(...contents){
+    addRow(contents){
         if(contents.length !== this.headerRow.length){
             throw new Error(`Row ${contents} does not contain the right number of columns. It should contain exactly ${this.headerRow.length}.`);
         }
-        this.body.push(contents);
+        this.body.push(contents.map((cell)=>cell.toString().trim()));
     }
 
     getBody(){
         return this.body;
     }
-    /*
-    toString(){
 
-    }*/
+    toString(){
+        let longestHeader = this.headerRow.reduce(LONGEST_STRING_LENGTH_IN_ARRAY, 0);
+        let longestCell = this.body.reduce(LONGEST_STRING_LENGTH_IN_ARRAY_OF_ARRAYS, 0);
+        let cellSize = (longestHeader < longestCell) ? longestCell : longestHeader;
+        let ret = "";
+        // build headers
+        ret += padJoinArray(this.headerRow, cellSize);
+        ret += this.body.map((row)=>'\n' + padJoinArray(row, cellSize)).join('');
+
+        return ret;
+    }
 }
 
 /*
