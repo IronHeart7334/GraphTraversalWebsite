@@ -9,6 +9,40 @@ class Manifest {
         this.edgeUrl = null;
         this.labelUrl = null;
     }
+
+    setMapUrl(url){
+        this.mapUrl = url;
+    }
+    setVertexUrl(url){
+        this.vertexUrl = url;
+    }
+    setEdgeUrl(url){
+        this.edgeUrl = url;
+    }
+    setLabelUrl(url){
+        this.labelUrl = url;
+    }
+
+    getMapUrl(){
+        return this.mapUrl;
+    }
+    getVertexUrl(){
+        return this.vertexUrl;
+    }
+    getEdgeUrl(){
+        return this.edgeUrl;
+    }
+    getLabelUrl(){
+        return this.labelUrl;
+    }
+
+    toString(){
+        return `Manifest:
+            Map Image : ${this.mapUrl}
+            Vertices : ${this.vertexUrl}
+            Edges : ${this.edgeUrl}
+            Labels : ${this.labelUrl}`
+    }
 }
 
 /*
@@ -58,6 +92,7 @@ async function downloadManifest(url){
     let man = new Manifest();
     let text = await downloadFile(url);
     console.log(text);
+    
     return man;
 }
 
