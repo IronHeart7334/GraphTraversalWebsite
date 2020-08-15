@@ -15,6 +15,14 @@ class VersionLog {
     constructor(){
         this.versionNameToManifests = new Map();
     }
+
+    addVersion(versionName, manifestUrl){
+        versionName = versionName.toUpperCase();
+        if(!this.versionNameToManifests.has(versionName)){
+            this.versionNameToManifests.set(versionName, []);
+        }
+        this.versionNameToManifests.get(versionName).push(manifestUrl);
+    }
 }
 
 async function downloadFile(url){
@@ -32,7 +40,7 @@ async function downloadVersionLog(url){
     let rawText = await downloadFile(url);
     let vlog = new VersionLog();
     let csv = parseResponseText(rawText);
-    
+    console.log(csv);
     return vlog;
 }
 
