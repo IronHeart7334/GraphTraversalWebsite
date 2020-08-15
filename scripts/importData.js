@@ -24,10 +24,22 @@ class VersionLog {
 
     addVersion(versionName, manifestUrl){
         versionName = versionName.toUpperCase();
-        if(!this.versionNameToManifests.has(versionName)){
+        if(!this.containsVersion(versionName)){
             this.versionNameToManifests.set(versionName, []);
         }
         this.versionNameToManifests.get(versionName).push(manifestUrl);
+    }
+
+    containsVersion(versionName){
+        return this.versionNameToManifests.has(versionName.toUpperCase());
+    }
+
+    getManifestsForVersion(versionName){
+        versionName = versionName.toUpperCase();
+        if(!this.containsVersion(versionName)){
+            throw new Error(`Version log does not contain version ${versionName}.`);
+        }
+        return this.versionNameToManifests.get(versionName);
     }
 }
 
@@ -42,16 +54,59 @@ async function downloadGoogleDriveFile(fileId){
     return downloadFile(`https://drive.google.com/uc?export=download&id=${fileId}`);
 }
 
+async function downloadManifest(url){
+    let man = new Manifest();
+    let text = await downloadFile(url);
+    console.log(text);
+    return man;
+}
+
 async function downloadVersionLog(url){
     let rawText = await downloadFile(url);
     let vlog = new VersionLog();
     let csv = parseResponseText(rawText);
-    console.log(csv.toString());
+
+    const headers = csv.getHeaders();
+    const numCols = headers.length;
+    const body = csv.getBody();
+    const numBodyRows = body.length;
+    let cellData;
+
+    for(let colNum = 0; colNum < numCols; colNum++){
+        for(let bodyRowNum = 0; bodyRowNum < numBodyRows && cellData !== ""; bodyRowNum++){
+            cellData = body[bodyRowNum][colNum];
+            if(cellData !== ""){
+                vlog.addVersion(headers[colNum], cellData);
+            }
+        }
+    }
+    console.log(vlog);
     return vlog;
+}
+
+async function getLatestManifest(versionLogUrl, version){
+    // first, download the given version log.
+    let versionLog = await downloadVersionLog(versionLogUrl);
+
+    // check if it has the given version
+    let isValidVersion = versionLog.containsVersion(version);
+    let manifestList = (isValidVersion) ? versionLog.getManifestsForVersion(version) : versionLog.getDefaultManifests();
+    // the manifest list is stored as a stack (latest exports at the bottom)
+    let currUrl = null;
+    while(manifestList.length !== 0 && currUrl === null){
+        currUrl = manifestList.pop();
+        // check if is valid, if not, set to null
+        if(currUrl === ""){
+            currUrl = null;
+        }
+    }
+
+    // by now, we should have a valid manifest URL.
+    console.log(currUrl);
+    let ret = await downloadManifest(currUrl);
 }
 
 export {
     downloadFile,
-    downloadGoogleDriveFile,
-    downloadVersionLog
+    getLatestManifest
 };

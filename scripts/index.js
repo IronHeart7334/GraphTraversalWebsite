@@ -1,6 +1,6 @@
 import {
     downloadFile,
-    downloadVersionLog
+    getLatestManifest
 } from "./importData.js";
 
 import {
@@ -14,5 +14,5 @@ import {
 const VERSION_LOG_URL = "../data/versionLog.csv";
 
 //downloadFile("../data/testCoords.csv").then((t)=>console.log(t));
-downloadVersionLog(VERSION_LOG_URL).then((vlog)=>console.log(vlog));
-downloadFile("../data/testData.csv").then((text)=>console.log(parseResponseText(text).toString()));
+getLatestManifest(VERSION_LOG_URL, "default").then((man)=>console.log(man));
+//downloadFile("../data/testData.csv").then((text)=>console.log(parseResponseText(text).toString()));

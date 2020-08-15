@@ -1,2 +1,2 @@
 default
-../manifest.csv
+localhost:8000/data/manifest.csv
