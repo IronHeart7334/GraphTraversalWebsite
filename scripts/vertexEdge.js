@@ -52,6 +52,9 @@ class Vertex {
 }
 
 class Edge {
+    /*
+    from and to are Vertex objects
+    */
     constructor(from, to){
         this.from = from;
         this.to = to;
@@ -67,18 +70,24 @@ class Path {
 
 class Graph {
     constructor(){
+        /*
+        Vertex => Vertex[]
+        Key is start, value is the neighbors of the vertex with that ID.
+        */
+        this.edges = new Map();
         this.idToVertex = new Map();
         this.labelToId = new Map();
     }
 
     addVertex(vertex){
         this.idToVertex.set(vertex.id, vertex);
-        vertex.labels.forEach((lable)=>{
-            this.labelToId.set(label, vertex.id);
-        });
     }
-
-    // maybe make an addEdge(vertex1, vertex2) method
+    addEdge(edge){
+        if(!this.edges.has(edge.from)){
+            this.edges.set(edge.from, []);
+        }
+        this.edges.get(edge.from).push(edge);
+    }
 
     getVertexById(id){
         return this.idToVertex.get(id);

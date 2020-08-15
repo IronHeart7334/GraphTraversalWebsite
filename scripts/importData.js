@@ -92,7 +92,13 @@ async function downloadManifest(url){
     let man = new Manifest();
     let text = await downloadFile(url);
     console.log(text);
-    
+    let json = JSON.parse(text.trim());
+    man.setMapUrl(json["type"]);
+    man.setVertexUrl(json["vertices"]);
+    man.setEdgeUrl(json["edges"]);
+    man.setLabelUrl(json["labels"]);
+
+    console.log(man.toString());
     return man;
 }
 
@@ -115,7 +121,6 @@ async function downloadVersionLog(url){
             }
         }
     }
-    console.log(vlog);
     return vlog;
 }
 
