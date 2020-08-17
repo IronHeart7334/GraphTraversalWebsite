@@ -64,6 +64,10 @@ class Edge {
         this.to = to;
         this.length = from.distanceFrom(to);
     }
+
+    toString(){
+        return `Edge ${this.from.id} => ${this.to.id}`;
+    }
 }
 
 class Path {
@@ -143,6 +147,59 @@ class Graph {
         }
     }
 
+    parseEdgeCsv(csv){
+        console.log("Parsing the following edge file:");
+        console.log(csv.toString());
+        let body = csv.getBody();
+        let errors = [];
+        let row;
+        let id1;
+        let id2;
+        let vertex1;
+        let vertex2;
+        let errorFlag;
+        for(let rowNum = 0; rowNum < body.length; rowNum++){
+            errorFlag = false;
+            row = body[rowNum];
+            id1 = parseInt(row[0]);
+            id2 = parseInt(row[1]);
+            if(isNaN(id1)){
+                errors.push(`Invalid ID in first column: ${row.toString()}`);
+                errorFlag = true;
+            }
+            if(isNaN(id2)){
+                errors.push(`Invalid ID in second column: ${row.toString()}`);
+                errorFlag = true;
+            }
+
+            if(!errorFlag){
+                // now see if I have the proper vertices
+                vertex1 = this.idToVertex.get(id1);
+                vertex2 = this.idToVertex.get(id2);
+                if(vertex1 == null){
+                    errors.push(`Graph contains no vertex with ID ${id1}`);
+                    errorFlag = true;
+                }
+                if(vertex2 == null){
+                    errors.push(`Graph contains no vertex with ID ${id2}`);
+                    errorFlag = true;
+                }
+            }
+
+            if(!errorFlag){
+                // if we got here, we have 2 valid vertices
+                this.addEdge(new Edge(vertex1, vertex2));
+            }
+        }
+
+        if(errors.length === 0){
+            console.log("File parsed 100% successfully!");
+        } else {
+            console.error("Encountered a the following errors:");
+            errors.forEach((e)=>console.error(e));
+        }
+    }
+
     getVertexById(id){
         return this.idToVertex.get(id);
     }
@@ -156,6 +213,10 @@ class Graph {
         console.log("  VERTICES:");
         this.idToVertex.forEach((vertex, id)=>{
             console.log("    " + vertex.toString());
+        });
+        console.log("  EDGES:");
+        this.edges.forEach((edgeArray, fromVertexId)=>{
+            edgeArray.forEach((edge)=>console.log("    " + edge.toString()));
         });
         console.log("  LABELS:");
         //                     Map::forEach is backwards like this, right?

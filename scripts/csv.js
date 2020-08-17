@@ -54,9 +54,12 @@ class CsvFile {
     }
 
     addRow(contents){
+        /*
+        How do I want to handle headerless files?
         if(contents.length !== this.headerRow.length){
             throw new Error(`Row ${contents} does not contain the right number of columns. It should contain exactly ${this.headerRow.length}.`);
         }
+        */
         this.body.push(contents.map((cell)=>cell.toString().trim()));
     }
 
@@ -81,13 +84,16 @@ class CsvFile {
 responseText: string
 returns CsvFile
 */
-function parseResponseText(responseText){
+function parseResponseText(responseText, hasHeaders=true){
     let ret = new CsvFile();
 
     let allLines = responseText.trim().split(NEWLINE_REGEX);
-    let headers = allLines[0].trim().split(",");
-    let body = allLines.slice(1).map((line)=>line.trim().split(",")); // everything at index 1 and up
-    headers.forEach((header)=>ret.addHeader(header));
+    if(hasHeaders){
+        //                     removes first row and returns it.
+        let headers = allLines.shift().trim().split(",");
+        headers.forEach((header)=>ret.addHeader(header));
+    }
+    let body = allLines.map((line)=>line.trim().split(","));
     body.forEach((array)=>ret.addRow(array));
 
     return ret;

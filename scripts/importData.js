@@ -149,10 +149,13 @@ async function getLatestManifest(versionLogUrl, version){
 async function getLatestGraph(versionLogUrl, version, graph){
     let latestManifest = await getLatestManifest(versionLogUrl, version);
     let vertexText = await downloadFile(latestManifest.getVertexUrl());
-    console.log(vertexText);
+    let edgeText = await downloadFile(latestManifest.getEdgeUrl());
+    console.log(edgeText);
     let vertexFile = parseResponseText(vertexText);
-    console.log(vertexFile.toString());
+    let edgeFile = parseResponseText(edgeText, false); // has no headers
+    console.log(edgeFile.toString());
     graph.parseVertexCsv(vertexFile);
+    graph.parseEdgeCsv(edgeFile);
 }
 
 export {
