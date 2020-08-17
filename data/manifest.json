@@ -1,7 +1,7 @@
 {
     "type" : "manifest",
-    "image" : "localhost/data/5f3.jpg",
-    "vertices" : "localhost/data/testCoords.csv",
-    "edges" : "localhost/data/edges.csv",
-    "labels" : "localhost/data/labels.csv"
+    "image" : "localhost:8000/data/5f3.jpg",
+    "vertices" : "localhost:8000/data/testCoords.csv",
+    "edges" : "localhost:8000/data/edges.csv",
+    "labels" : "localhost:8000/data/labels.csv"
 }
