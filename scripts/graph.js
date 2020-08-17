@@ -49,6 +49,10 @@ class Vertex {
     distanceFrom(vertex2){
         return Math.sqrt(Math.pow(vertex2.x - this.x, 2), Math.pow(vertex2.y - this.y, 2));
     }
+
+    toString(){
+        return `#${this.id}(${this.x}, ${this.y})`;
+    }
 }
 
 class Edge {
@@ -89,6 +93,56 @@ class Graph {
         this.edges.get(edge.from).push(edge);
     }
 
+    /*
+    Takes a CsvFile, and
+    adds the vertices contained
+    therein.
+    */
+    parseVertexCsv(csv){
+        console.log("Parsing the following vertex file:");
+        console.log(csv.toString());
+        let errors = [];
+        let idCol = csv.getColIdx("id");
+        let xCol = csv.getColIdx("x");
+        let yCol = csv.getColIdx("y");
+        let data = csv.getBody();
+        let row;
+        let id;
+        let x;
+        let y;
+        let errorFlag = false;
+        for(let rowNum = 0; rowNum < data.length; rowNum++){
+            errorFlag = false;
+            row = data[rowNum];
+            id = parseInt(row[idCol]);
+            x = parseInt(row[xCol]);
+            y = parseInt(row[yCol]);
+            if(isNaN(id)){
+                errors.push(`Invalid ID: ${row[idCol]}`);
+                errorFlag = true;
+            }
+            if(isNaN(x)){
+                errors.push(`Invalid X coordinate: ${row[xCol]}`);
+                errorFlag = true;
+            }
+            if(isNaN(y)){
+                errors.push(`Invalid Y coordinate: ${row[yCol]}`);
+                errorFlag = true;
+            }
+
+            if(!errorFlag){
+                this.addVertex(new Vertex(id, x, y));
+            }
+            errorFlag = false;
+        }
+        if(errors.length === 0){
+            console.log("File parsed 100% successfully!");
+        } else {
+            console.error("Encountered a the following errors:");
+            errors.forEach((e)=>console.error(e));
+        }
+    }
+
     getVertexById(id){
         return this.idToVertex.get(id);
     }
@@ -100,7 +154,7 @@ class Graph {
     prettyPrintGraphData(){
         console.log("GRAPH:");
         console.log("  VERTICES:");
-        this.idToVertex.values().forEach((vertex)=>{
+        this.idToVertex.forEach((vertex, id)=>{
             console.log("    " + vertex.toString());
         });
         console.log("  LABELS:");
@@ -112,6 +166,7 @@ class Graph {
     }
 }
 
+/*
 let n = new Vertex(1, 1, 1);
 n.addNeighbor(5);
 n.addNeighbor(1);
@@ -120,8 +175,10 @@ n.addNeighbor(2);
 n.addNeighbor(4);
 n.addNeighbor(5);
 n.addNeighbor(5);
+*/
 
 export {
     Vertex,
-    Path
+    Path,
+    Graph
 };

@@ -49,6 +49,10 @@ class CsvFile {
         return this.headerToCol.has(header.toUpperCase());
     }
 
+    getColIdx(header){
+        return this.headerToCol.get(header.toUpperCase());
+    }
+
     addRow(contents){
         if(contents.length !== this.headerRow.length){
             throw new Error(`Row ${contents} does not contain the right number of columns. It should contain exactly ${this.headerRow.length}.`);

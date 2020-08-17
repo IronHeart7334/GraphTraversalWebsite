@@ -1,11 +1,11 @@
 import {
     downloadFile,
-    getLatestManifest
+    getLatestGraph
 } from "./importData.js";
 
 import {
-    Vertex
-} from "./vertexEdge.js";
+    Graph
+} from "./graph.js";
 
 import {
     parseResponseText
@@ -13,6 +13,8 @@ import {
 
 const VERSION_LOG_URL = "../data/versionLog.csv";
 
+let graph = new Graph();
+
 //downloadFile("../data/testCoords.csv").then((t)=>console.log(t));
-getLatestManifest(VERSION_LOG_URL, "default").then((man)=>console.log(man));
+getLatestGraph(VERSION_LOG_URL, "default", graph).then(()=>console.log(graph.prettyPrintGraphData()));
 //downloadFile("../data/testData.csv").then((text)=>console.log(parseResponseText(text).toString()));

@@ -143,9 +143,19 @@ async function getLatestManifest(versionLogUrl, version){
 
     // by now, we should have a valid manifest URL.
     let ret = await downloadManifest(currUrl);
+    return ret;
+}
+
+async function getLatestGraph(versionLogUrl, version, graph){
+    let latestManifest = await getLatestManifest(versionLogUrl, version);
+    let vertexText = await downloadFile(latestManifest.getVertexUrl());
+    console.log(vertexText);
+    let vertexFile = parseResponseText(vertexText);
+    console.log(vertexFile.toString());
+    graph.parseVertexCsv(vertexFile);
 }
 
 export {
     downloadFile,
-    getLatestManifest
+    getLatestGraph
 };
