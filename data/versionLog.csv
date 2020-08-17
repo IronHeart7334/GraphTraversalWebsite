@@ -1,2 +1,2 @@
 default
-localhost:8000/data/manifest.csv
+./data/manifest.json

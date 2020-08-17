@@ -93,7 +93,7 @@ async function downloadManifest(url){
     let text = await downloadFile(url);
     console.log(text);
     let json = JSON.parse(text.trim());
-    man.setMapUrl(json["type"]);
+    man.setMapUrl(json["image"]);
     man.setVertexUrl(json["vertices"]);
     man.setEdgeUrl(json["edges"]);
     man.setLabelUrl(json["labels"]);
@@ -142,7 +142,6 @@ async function getLatestManifest(versionLogUrl, version){
     }
 
     // by now, we should have a valid manifest URL.
-    console.log(currUrl);
     let ret = await downloadManifest(currUrl);
 }
 
