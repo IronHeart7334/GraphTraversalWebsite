@@ -71,8 +71,20 @@ class Edge {
 }
 
 class Path {
-    constructor(...vertices){
-        this.vertices = vertices;
+    constructor(){
+        this.vertices = [];
+    }
+
+    addVertex(vertex){
+        this.vertices.push(vertex);
+    }
+
+    getVertices(){
+        return this.vertices;
+    }
+
+    toString(){
+        return "PATH: " + this.vertices.map((v)=>v.toString()).join(" => ");
     }
 }
 
@@ -249,6 +261,19 @@ class Graph {
         return this.labelToVertex.get(label);
     }
 
+
+    /*
+    Dijkstra's algorithm
+    */
+    findPath(startId, endId){
+        const DEBUG = true;
+        let path = new Path();
+
+        return path;
+    }
+
+
+
     prettyPrintGraphData(){
         console.log("GRAPH:");
         console.log("  IMAGE:");
@@ -271,6 +296,125 @@ class Graph {
             console.log(`    ${label} => ${vertex.toString()}`);
         });
         console.log("END OF GRAPH");
+    }
+}
+
+class PathStep {
+    constructor(edge, accumulatedDistance){
+        this.edge = edge;
+        this.accumulatedDistance = edge.length + accumulatedDistance;
+    }
+
+    toString(){
+        return `Path Step on edge (${this.edge.toString()}). Total distance: ${this.accumulatedDistance}`;
+    }
+}
+class PathStepMinHeap {
+    constructor(){
+        this.firstEmptyIdx = 0;
+        this.values = [];
+    }
+
+    siftUp(pathStep){
+        if(this.firstEmptyIdx === this.values.length){
+            this.values.push(""); // make room for the new step
+        }
+        this.values[this.firstEmptyIdx] = pathStep;
+        this.firstEmptyIdx++;
+
+        // swap until the pathStep is in its proper place
+        let currIdx = this.firstEmptyIdx - 1; // where the pathStep currently is
+        let parentIdx = Math.floor((idx - 1) / 2); // starts at the bottom, so we need the node above it.
+        // heaps are like a binary tree, so this is how you access a node's parents
+        let temp = null;
+        while(parentIdx >= 0 && idx !== 0 && this.values[idx].accumulatedDistance < this.values[parentIdx].accumulatedDistance){
+            temp = this.values[parentIdx];
+            this.values[parentIdx] = this.values[idx];
+            this.values[idx] = temp;
+            temp = null;
+            idx = parentIdx;
+            parentIdx = Math.floor((idx - 1) / 2);
+        }
+    }
+
+    siftDown(){
+        if(this.isEmpty()){
+            throw new Error("Nothing to sift down");
+        }
+        // remove topmost item from the heap ...
+        let ret = this.values[0];
+        // ... the last element becomes the first, overwriting the old one
+        this.values[0] = this.values[this.firstEmptyIdx - 1];
+        this.firstEmptyIdx--; // last element's slot is marked "up for grabs", and may be overwrittin, effectively deleting it
+
+        // swap this new top into place
+        let currIdx = 0;
+        let left = 1; // heap is like a binary tree, so this is how you access children
+        let right = 2;
+        let temp = null;
+        while(
+            // test if the new top is heavier than either child.
+            // check if left or right are (in range and lighter than the new top)
+            ((left < this.firstEmptyIdx && this.values[left].accumulatedDistance < this.values[currIdx].accumulatedDistance)) ||
+            ((right < this.firstEmptyIdx && this.values[right].accumulatedDistance < this.values[currIdx].accumulatedDistance))
+        ) {
+            // identify which child is lighter
+            if(this.values[left].accumulatedDistance < this.values[right].accumulatedDistance){
+                // swap top with its left child
+                temp = this.values[left];
+                this.values[left] = this.values[currIdx];
+                this.values[currIdx] = temp;
+                idx = left;
+            } else {
+                // swap top with its right child
+                temp = this.values[right];
+                this.values[right] = this.values[currIdx];
+                this.values[currIdx] = temp;
+                idx = right;
+            }
+            temp = null;
+            left = currIdx * 2 + 1;
+            right = currIdx * 2 + 2;
+        }
+
+        return ret;
+    }
+
+    isEmpty(){
+        return this.firstEmptyIdx === 0;
+    }
+
+    toString(){
+        let ret = "HEAP:";
+        let rowNum = 0;
+        let colNum = 0;
+        let rowMaxWidth = 1;
+        let nextRow = null;
+        for(let i = 0; i < this.firstEmptyIdx; i++){
+            if(nextRow === null){
+                nextRow = `\nRow #${rowNum}: `;
+            }
+            nextRow += this.values[i].toString();
+            colNum++;
+            if(col >= rowMaxWidth){
+                // done with row
+                rowNum++;
+                rowMaxWidth *= 2;
+                colNum = 0;
+                ret += nextRow;
+                nextRow = null;
+            } else {
+                nextRow += " | ";
+            }
+        }
+
+        // don't forget incomplete rows!
+        if(nextRow !== null){
+            ret += nextRow;
+        }
+
+        ret += "\nEND OF HEAP";
+        return ret;
     }
 }
 
