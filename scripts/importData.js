@@ -159,6 +159,7 @@ async function getLatestGraph(versionLogUrl, version, graph){
     graph.parseVertexCsv(vertexFile);
     graph.parseEdgeCsv(edgeFile);
     graph.parseLabelCsv(labelFile);
+    graph.setImage(latestManifest.getMapUrl());
 }
 
 export {

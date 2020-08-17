@@ -79,12 +79,13 @@ class Path {
 class Graph {
     constructor(){
         /*
-        Vertex => Vertex[]
-        Key is start, value is the neighbors of the vertex with that ID.
+        Vertex => Edge[]
+        Key is start, value is the edges connecting it to its neighbors.
         */
         this.edges = new Map();
         this.idToVertex = new Map();
         this.labelToVertex = new Map();
+        this.image = null;
     }
 
     addVertex(vertex){
@@ -98,6 +99,10 @@ class Graph {
     }
     addLabel(labelStr, vertex){
         this.labelToVertex.set(labelStr, vertex);
+    }
+    setImage(path){
+        this.image = new Image();
+        this.image.src = path;
     }
 
     /*
@@ -246,6 +251,12 @@ class Graph {
 
     prettyPrintGraphData(){
         console.log("GRAPH:");
+        console.log("  IMAGE:");
+        if(this.image == null){
+            console.log("    no image set");
+        } else {
+            console.log("    " + this.image.src);
+        }
         console.log("  VERTICES:");
         this.idToVertex.forEach((vertex, id)=>{
             console.log("    " + vertex.toString());
@@ -262,17 +273,6 @@ class Graph {
         console.log("END OF GRAPH");
     }
 }
-
-/*
-let n = new Vertex(1, 1, 1);
-n.addNeighbor(5);
-n.addNeighbor(1);
-n.addNeighbor(3);
-n.addNeighbor(2);
-n.addNeighbor(4);
-n.addNeighbor(5);
-n.addNeighbor(5);
-*/
 
 export {
     Vertex,
