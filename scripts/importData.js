@@ -150,12 +150,15 @@ async function getLatestGraph(versionLogUrl, version, graph){
     let latestManifest = await getLatestManifest(versionLogUrl, version);
     let vertexText = await downloadFile(latestManifest.getVertexUrl());
     let edgeText = await downloadFile(latestManifest.getEdgeUrl());
-    console.log(edgeText);
+    let labelText = await downloadFile(latestManifest.getLabelUrl());
+    console.log(labelText);
     let vertexFile = parseResponseText(vertexText);
     let edgeFile = parseResponseText(edgeText, false); // has no headers
-    console.log(edgeFile.toString());
+    let labelFile = parseResponseText(labelText);
+    console.log(labelFile.toString());
     graph.parseVertexCsv(vertexFile);
     graph.parseEdgeCsv(edgeFile);
+    graph.parseLabelCsv(labelFile);
 }
 
 export {

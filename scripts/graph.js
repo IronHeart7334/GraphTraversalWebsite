@@ -84,7 +84,7 @@ class Graph {
         */
         this.edges = new Map();
         this.idToVertex = new Map();
-        this.labelToId = new Map();
+        this.labelToVertex = new Map();
     }
 
     addVertex(vertex){
@@ -95,6 +95,9 @@ class Graph {
             this.edges.set(edge.from, []);
         }
         this.edges.get(edge.from).push(edge);
+    }
+    addLabel(labelStr, vertex){
+        this.labelToVertex.set(labelStr, vertex);
     }
 
     /*
@@ -200,12 +203,45 @@ class Graph {
         }
     }
 
+    parseLabelCsv(csv){
+        console.log("Parsing the following label file:");
+        console.log(csv.toString());
+        let body = csv.getBody();
+        let errors = [];
+        let labelCol = csv.getColIdx("label");
+        let idCol = csv.getColIdx("id");
+        let row;
+        let label;
+        let id;
+
+        for(let rowNum = 0; rowNum < body.length; rowNum++){
+            row = body[rowNum];
+            label = row[labelCol].toString();
+            id = parseInt(row[idCol]);
+            if(isNaN(id)){
+                errors.push(`Invalid id in row ${row.toString()}`);
+            } else if(this.getVertexById(id) == null){
+                errors.push(`Graph contains no vertex with ID ${id}`);
+            } else {
+                this.addLabel(label, this.getVertexById(id));
+            }
+        }
+
+
+        if(errors.length === 0){
+            console.log("File parsed 100% successfully!");
+        } else {
+            console.error("Encountered a the following errors:");
+            errors.forEach((e)=>console.error(e));
+        }
+    }
+
     getVertexById(id){
         return this.idToVertex.get(id);
     }
 
     getVertexByLabel(label){
-        return this.labelToId.get(label);
+        return this.labelToVertex.get(label);
     }
 
     prettyPrintGraphData(){
@@ -220,8 +256,8 @@ class Graph {
         });
         console.log("  LABELS:");
         //                     Map::forEach is backwards like this, right?
-        this.labelToId.forEach((id, label)=>{
-            console.log(`    ${label} => ${id}`);
+        this.labelToVertex.forEach((vertex, label)=>{
+            console.log(`    ${label} => ${vertex.toString()}`);
         });
         console.log("END OF GRAPH");
     }
