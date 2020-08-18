@@ -1,2 +1,2 @@
-default
-./data/manifest.json
+default, wayfinding
+./data/manifest.json, ./data/nodeManagerManifest.json
