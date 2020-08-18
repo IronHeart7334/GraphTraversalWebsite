@@ -267,8 +267,77 @@ class Graph {
     */
     findPath(startId, endId){
         const DEBUG = true;
-        let path = new Path();
 
+        // setup
+        let path = new Path();
+        let travelLog = []; // use an array as a stack
+        let travelHeap = new PathStepMinHeap();
+        let visited = new Map();
+        let currVertex = this.getVertexById(startId);
+        let currStep = new PathStep(new Edge(currVertex, currVertex), 0);
+
+        // find the path
+        travelLog.push(currStep);
+        visited.set(currStep.edge.from.id, true);
+        while(currVertex.id !== endId){
+            // find every edge leading from currVertex...
+            // ... add all edges to unvisited vertices to the travel heap
+            this.edges.get(currVertex).filter((edge)=>!visited.has(edge.to.id)).forEach((edge)=>{
+                // calculate the cost of the new step
+                currStep = new PathStep(
+                    edge,
+                    travelLog[travelLog.length - 1].accumulatedDistance // add the accumulated distance from the top of the travelLog stack
+                );
+                travelHeap.siftUp(currStep); // add this step as an option to the travelHeap
+            });
+
+            if(DEBUG){
+                console.log("After sifting up...");
+                console.log(travelHeap.toString());
+            }
+
+            // find the best step
+            do {
+                currStep = travelHeap.siftDown();
+            } while(visited.has(currStep.edge.to.id)); // ignore vertices we've already visited
+            if(DEBUG){
+                console.log("After sifting down...");
+                console.log(travelHeap.toString());
+            }
+
+            // travel to this new best step
+            travelLog.push(currStep);
+            currVertex = currStep.edge.to;
+            visited.set(currVertex.id, true);
+
+            if(DEBUG){
+                console.log("New travel log:");
+                console.log(travelLog);
+            }
+        }
+
+        // backtrack to construct the optimal path
+        let accumulatedDistance = travelLog[travelLog.length - 1].accumulatedDistance; // the length the optimal path will have
+        let reversed = [];
+        while(travelLog.length !== 0 && currVertex.id !== startId){
+            currStep = travelLog.pop();
+            //                                    check for equality between floating point numbers
+            if(currStep.edge.to === currVertex && Math.abs(currStep.accumulatedDistance - accumulatedDistance) < 0.001){
+                // walk back
+                reversed.push(currStep.edge.to);
+                currVertex = currStep.edge.from;
+                accumulatedDistance -= currStep.edge.from.distanceFrom(currStep.edge.to); // walked back this distance
+            }
+            if(DEBUG){
+                console.log("After popping from the log:");
+                console.log(reversed.toString());
+            }
+        }
+
+        path.addVertex(this.getVertexById(startId));
+        while(reversed.length !== 0){
+            path.addVertex(reversed.pop());
+        }
         return path;
     }
 
@@ -324,16 +393,16 @@ class PathStepMinHeap {
 
         // swap until the pathStep is in its proper place
         let currIdx = this.firstEmptyIdx - 1; // where the pathStep currently is
-        let parentIdx = Math.floor((idx - 1) / 2); // starts at the bottom, so we need the node above it.
+        let parentIdx = Math.floor((currIdx - 1) / 2); // starts at the bottom, so we need the node above it.
         // heaps are like a binary tree, so this is how you access a node's parents
         let temp = null;
-        while(parentIdx >= 0 && idx !== 0 && this.values[idx].accumulatedDistance < this.values[parentIdx].accumulatedDistance){
+        while(parentIdx >= 0 && currIdx !== 0 && this.values[currIdx].accumulatedDistance < this.values[parentIdx].accumulatedDistance){
             temp = this.values[parentIdx];
-            this.values[parentIdx] = this.values[idx];
-            this.values[idx] = temp;
+            this.values[parentIdx] = this.values[currIdx];
+            this.values[currIdx] = temp;
             temp = null;
-            idx = parentIdx;
-            parentIdx = Math.floor((idx - 1) / 2);
+            currIdx = parentIdx;
+            parentIdx = Math.floor((currIdx - 1) / 2);
         }
     }
 
@@ -364,13 +433,13 @@ class PathStepMinHeap {
                 temp = this.values[left];
                 this.values[left] = this.values[currIdx];
                 this.values[currIdx] = temp;
-                idx = left;
+                currIdx = left;
             } else {
                 // swap top with its right child
                 temp = this.values[right];
                 this.values[right] = this.values[currIdx];
                 this.values[currIdx] = temp;
-                idx = right;
+                currIdx = right;
             }
             temp = null;
             left = currIdx * 2 + 1;
@@ -396,7 +465,7 @@ class PathStepMinHeap {
             }
             nextRow += this.values[i].toString();
             colNum++;
-            if(col >= rowMaxWidth){
+            if(colNum >= rowMaxWidth){
                 // done with row
                 rowNum++;
                 rowMaxWidth *= 2;
