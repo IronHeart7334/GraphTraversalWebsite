@@ -23,12 +23,19 @@ class Canvas {
         this.renderedGraph = null;
         this.renderedPath = null;
         //this.elementSel
-        /*
-        $(window).scroll((scrollEvent)=>{
-            console.log(scrollEvent);
-            this.draw.scale(0.1, 0.1);
-        }); // for some reason this isn't firing when applied to elementSel, but it works manually
-        */
+
+        this.scaleFactor = 1.0;
+        document.getElementById(id.replace("#", "")).addEventListener("wheel", (e)=>{
+            //console.log(e);
+            if(e.shiftKey){
+                // https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onwheel
+                this.scaleFactor -= parseFloat(e.deltaY) / 100;
+                this.draw.setTransform(1, 0, 0, 1, 0, 0);
+                this.draw.scale(this.scaleFactor, this.scaleFactor);
+                this.repaint();
+            }
+        });
+
         this.spinFactor = 0;
     }
 
@@ -56,6 +63,7 @@ class Canvas {
     */
 
     repaint(){
+        this.draw.clearRect(0, 0, this.elementSel[0].scrollWidth, this.elementSel[0].scrollHeight);
         this.draw.translate(0.5, 0.5); // fixes blurring issues
         if(this.renderedGraph != null){
             this.renderedGraph.draw(this);
