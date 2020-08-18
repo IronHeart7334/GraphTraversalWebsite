@@ -53,6 +53,14 @@ class Vertex {
     toString(){
         return `#${this.id}(${this.x}, ${this.y})`;
     }
+
+    /*
+    Canvas is a canvas object
+    from gui.js
+    */
+    draw(canvas){
+        canvas.rect(this.x, this.y, 20, 20);
+    }
 }
 
 class Edge {
@@ -68,14 +76,23 @@ class Edge {
     toString(){
         return `Edge ${this.from.id} => ${this.to.id}`;
     }
+
+    draw(canvas){
+        canvas.line(this.from.x, this.from.y, this.to.x, this.to.y);
+    }
 }
 
 class Path {
     constructor(){
         this.vertices = [];
+        this.edges = [];
     }
 
     addVertex(vertex){
+        if(this.vertices.length >= 1){
+            // add edge from the current end of the vertex list to the new end
+            this.edges.push(new Edge(this.vertices[this.vertices.length - 1], vertex));
+        }
         this.vertices.push(vertex);
     }
 
@@ -85,6 +102,10 @@ class Path {
 
     toString(){
         return "PATH: " + this.vertices.map((v)=>v.toString()).join(" => ");
+    }
+
+    draw(canvas){
+        this.edges.forEach((edge)=>edge.draw(canvas));
     }
 }
 
@@ -341,8 +362,6 @@ class Graph {
         return path;
     }
 
-
-
     prettyPrintGraphData(){
         console.log("GRAPH:");
         console.log("  IMAGE:");
@@ -365,6 +384,13 @@ class Graph {
             console.log(`    ${label} => ${vertex.toString()}`);
         });
         console.log("END OF GRAPH");
+    }
+
+    draw(canvas){
+        if(this.image != null){
+            canvas.drawImage(this.image);
+        }
+        this.idToVertex.forEach((vertex, id)=>vertex.draw(canvas));
     }
 }
 
