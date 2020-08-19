@@ -17,6 +17,31 @@ class InputBox {
 
         });
     }
+
+    getSelectedOption(){
+        return this.elementSel.val();
+    }
+}
+
+class CalcPathForm {
+    constructor(formId, startBoxId, endBoxId){
+        if(!formId.startsWith("#")){
+            formId = "#" + formId;
+        }
+        this.startBox = new InputBox(startBoxId);
+        this.endBox = new InputBox(endBoxId);
+
+        this.elementSel = $(formId);
+        this.elementSel.submit((e)=>{
+            console.log(e);
+            e.preventDefault();
+        });
+    }
+
+    addOptions(options){
+        this.startBox.addOptions(options);
+        this.endBox.addOptions(options);
+    }
 }
 
 const VERTEX_AND_EDGE_COLOR = "blue";
@@ -175,6 +200,6 @@ function linkGui(options={}){
 }
 
 export {
-    InputBox,
+    CalcPathForm,
     Canvas
 };
