@@ -25,6 +25,8 @@ class Canvas {
 
         this.panX = 0;
         this.panY = 0;
+        this.dragDeltaX = 0;
+        this.dragDeltaY = 0;
         this.scaleFactor = 1.0;
 
         this.clickStart = [null, null];
@@ -37,12 +39,18 @@ class Canvas {
             if(e.buttons === 1){ // left mouse button is held.
                 //console.log(e);
                 let newCoords = this.getMouseCoordsOnCanvas(e);
-                let deltas = [newCoords[0] - this.clickStart[0], newCoords[1] - this.clickStart[1]];
-                this.panX -= deltas[0];
-                this.panY -= deltas[1];
-                this.clickStart = deltas;
+                this.dragDeltaX = newCoords[0] - this.clickStart[0];
+                this.dragDeltaY = newCoords[1] - this.clickStart[1];
                 this.repaint();
             }
+        });
+        this.elementSel[0].addEventListener("mouseup", (e)=>{
+            this.clickStart = [null, null];
+            this.panX += this.dragDeltaX;
+            this.panY += this.dragDeltaY;
+            this.dragDeltaX = 0;
+            this.dragDeltaY = 0;
+            this.repaint();
         });
 
         // handle zooming
@@ -72,7 +80,7 @@ class Canvas {
     repaint(){
         this.draw.setTransform(1, 0, 0, 1, 0, 0); // reset to identity matrix
         this.draw.clearRect(0, 0, this.elementSel[0].scrollWidth, this.elementSel[0].scrollHeight);
-        this.draw.translate(0.5 + this.panX, 0.5 + this.panY); // fixes blurring issues
+        this.draw.translate(0.5 + this.panX + this.dragDeltaX, 0.5 + this.panY + this.dragDeltaY); // fixes blurring issues
         this.draw.scale(this.scaleFactor, this.scaleFactor);
         if(this.renderedGraph != null){
             this.renderedGraph.draw(this);
