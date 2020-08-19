@@ -119,10 +119,17 @@ class Graph {
         this.idToVertex = new Map();
         this.labelToVertex = new Map();
         this.image = null;
+        this.bounds = [0, 0];
     }
 
     addVertex(vertex){
         this.idToVertex.set(vertex.id, vertex);
+        if(vertex.x > this.bounds[0]){
+            this.bounds[0] = vertex.x;
+        }
+        if(vertex.y > this.bounds[1]){
+            this.bounds[1] = vertex.y;
+        }
     }
     addEdge(edge){
         if(!this.edges.has(edge.from)){
@@ -136,6 +143,10 @@ class Graph {
     setImage(path){
         this.image = new Image();
         this.image.src = path;
+    }
+
+    getBounds(){
+        return this.bounds;
     }
 
     /*

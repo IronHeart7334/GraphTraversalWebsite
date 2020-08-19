@@ -23,18 +23,32 @@ class Canvas {
         this.renderedGraph = null;
         this.renderedPath = null;
 
+        // (panX, panY) is the new origin of the canvas
         this.panX = 0;
         this.panY = 0;
+
+        // offsets created by clicking and dragging the mouse
         this.dragDeltaX = 0;
         this.dragDeltaY = 0;
+
         this.scaleFactor = 1.0;
 
+        // the coordinates of where the user clicks the mouse
         this.clickStart = [null, null];
+
+        // listen for beginning to drag
         this.elementSel[0].addEventListener("mousedown", (e)=>{
             //console.log("Mousedown", e);
             this.clickStart = this.getMouseCoordsOnCanvas(e);
             //console.log(this.clickStart);
         });
+
+        /*
+        When the user clicks and drags, move the canvas based on
+        the offset between where they initially click, and where
+        they drag their mouse to. Note that this method should not
+        alter panX or panY, as that distrupts calculations.
+        */
         this.elementSel[0].addEventListener("mousemove", (e)=>{
             if(e.buttons === 1){ // left mouse button is held.
                 //console.log(e);
@@ -44,6 +58,12 @@ class Canvas {
                 this.repaint();
             }
         });
+
+        /*
+        When the user releases the mouse, they have chosen their
+        deltas they want to offset the canvas by. Increase the pan
+        coordinates by these drag deltas, and reset the drag information.
+        */
         this.elementSel[0].addEventListener("mouseup", (e)=>{
             this.clickStart = [null, null];
             this.panX += this.dragDeltaX;
@@ -78,9 +98,32 @@ class Canvas {
     }
 
     repaint(){
+        if(this.scaleFactor < 0.2){
+            this.scaleFactor = 0.2;
+        } else if(this.scaleFactor > 5){
+            this.scaleFactor = 5;
+        }
+        if(this.panX > 0){
+            this.panX = 0;
+        } else if(this.graph != null){
+            let bounds = this.graph.getBounds();
+            if(this.panX < bounds[0]){
+                this.panX = bounds[0];
+            }
+        }
+
+        if(this.panY > 0){
+            this.panY = 0;
+        } else if(this.graph != null){
+            let bounds = this.graph.getBounds();
+            if(this.panY < bounds[1]){
+                this.panY = bounds[1];
+            }
+        }
+
         this.draw.setTransform(1, 0, 0, 1, 0, 0); // reset to identity matrix
         this.draw.clearRect(0, 0, this.elementSel[0].scrollWidth, this.elementSel[0].scrollHeight);
-        this.draw.translate(0.5 + this.panX + this.dragDeltaX, 0.5 + this.panY + this.dragDeltaY); // fixes blurring issues
+        this.draw.translate(0.5 + this.panX + this.dragDeltaX, 0.5 + this.panY + this.dragDeltaY); // 0.5 fixes blurring issues
         this.draw.scale(this.scaleFactor, this.scaleFactor);
         if(this.renderedGraph != null){
             this.renderedGraph.draw(this);
