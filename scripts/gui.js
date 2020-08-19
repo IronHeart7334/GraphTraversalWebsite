@@ -22,21 +22,44 @@ class Canvas {
         this.draw.strokeStyle = VERTEX_AND_EDGE_COLOR;
         this.renderedGraph = null;
         this.renderedPath = null;
-        //this.elementSel
 
+        this.panX = 0;
+        this.panY = 0;
         this.scaleFactor = 1.0;
-        document.getElementById(id.replace("#", "")).addEventListener("wheel", (e)=>{
-            //console.log(e);
-            if(e.shiftKey){
-                // https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onwheel
-                this.scaleFactor -= parseFloat(e.deltaY) / 100;
-                this.draw.setTransform(1, 0, 0, 1, 0, 0);
-                this.draw.scale(this.scaleFactor, this.scaleFactor);
+
+        this.clickStart = [null, null];
+        this.elementSel[0].addEventListener("mousedown", (e)=>{
+            //console.log("Mousedown", e);
+            this.clickStart = this.getMouseCoordsOnCanvas(e);
+            //console.log(this.clickStart);
+        });
+        this.elementSel[0].addEventListener("mousemove", (e)=>{
+            if(e.buttons === 1){ // left mouse button is held.
+                //console.log(e);
+                let newCoords = this.getMouseCoordsOnCanvas(e);
+                let deltas = [newCoords[0] - this.clickStart[0], newCoords[1] - this.clickStart[1]];
+                this.panX -= deltas[0];
+                this.panY -= deltas[1];
+                this.clickStart = deltas;
                 this.repaint();
             }
         });
 
-        this.spinFactor = 0;
+        // handle zooming
+        this.elementSel[0].addEventListener("wheel", (e)=>{
+            //console.log(e);
+            if(e.shiftKey){
+                // https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onwheel
+                this.scaleFactor -= parseFloat(e.deltaY) / 100;
+                this.repaint();
+            }
+        });
+    }
+
+    getMouseCoordsOnCanvas(mouseEvent){
+        //https://stackoverflow.com/questions/3234256/find-mouse-position-relative-to-element/42111623#42111623
+        let box = mouseEvent.target.getBoundingClientRect();
+        return [mouseEvent.clientX - box.left - this.panX, mouseEvent.clientY - box.top - this.panY];
     }
 
     setGraph(graph){
@@ -46,37 +69,17 @@ class Canvas {
         this.renderedPath = path;
     }
 
-    /*
-    setImg(path){
-        //https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-        this.img = new Image();
-        this.img.onload=this.repaint.bind(this);
-        this.img.src=path;
-    }
-    */
-    /*
-    spin(){
-        this.draw.setTransform(Math.cos(this.spinFactor), Math.sin(this.spinFactor), -Math.sin(this.spinFactor), Math.cos(this.spinFactor), 0, 0);
-        this.spinFactor+=1;
-        this.repaint();
-    }
-    */
-
     repaint(){
+        this.draw.setTransform(1, 0, 0, 1, 0, 0); // reset to identity matrix
         this.draw.clearRect(0, 0, this.elementSel[0].scrollWidth, this.elementSel[0].scrollHeight);
-        this.draw.translate(0.5, 0.5); // fixes blurring issues
+        this.draw.translate(0.5 + this.panX, 0.5 + this.panY); // fixes blurring issues
+        this.draw.scale(this.scaleFactor, this.scaleFactor);
         if(this.renderedGraph != null){
             this.renderedGraph.draw(this);
         }
         if(this.renderedPath != null){
             this.renderedPath.draw(this);
         }
-        /*
-        if(!!this.img){
-            this.draw.scale(0.25, 0.25);
-            this.draw.drawImage(this.img, 0, 0);
-        }
-        */
     }
 
 
@@ -106,15 +109,7 @@ class Canvas {
 function linkGui(options={}){
 
 }
-/*
-let canvas = new Canvas("map");
-canvas.setImg("./data/5f3.jpg");
-let i = setInterval(()=>{
-    console.log(canvas);
-    canvas.spin();
-}, 10);
-setTimeout(()=>clearInterval(i), 360 * 10);
-*/
+
 export {
     Canvas
 };
