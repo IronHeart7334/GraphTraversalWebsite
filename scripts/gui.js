@@ -3,7 +3,20 @@
 */
 
 class InputBox {
+    constructor(id){
+        if(!id.startsWith("#")){
+            id = "#" + id;
+        }
+        this.elementSel = $(id);
+    }
 
+    addOptions(options){
+        console.log(this.elementSel);
+        options.forEach((option)=>{
+            this.elementSel.append(`<option value="${option}">${option}</option>`);
+
+        });
+    }
 }
 
 const VERTEX_AND_EDGE_COLOR = "blue";
@@ -162,5 +175,6 @@ function linkGui(options={}){
 }
 
 export {
+    InputBox,
     Canvas
 };

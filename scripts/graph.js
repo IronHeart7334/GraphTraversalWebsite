@@ -149,6 +149,10 @@ class Graph {
         return this.bounds;
     }
 
+    getAllLabels(){
+        return Array.from(this.labelToVertex.keys());
+    }
+
     /*
     Takes a CsvFile, and
     adds the vertices contained
