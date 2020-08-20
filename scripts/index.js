@@ -8,7 +8,7 @@ import {
 } from "./graph.js";
 
 import {
-    parseResponseText
+    toCsvFile
 } from "./csv.js";
 
 import {
@@ -43,4 +43,4 @@ getLatestGraph(VERSION_LOG_URL, parameters.version, graph).then(()=>{
     canvas.setPath(p);
     canvas.repaint();
 });
-//downloadFile("../data/testData.csv").then((text)=>console.log(parseResponseText(text).toString()));
+//downloadFile("../data/testData.csv").then((text)=>console.log(toCsvFile(text).toString()));

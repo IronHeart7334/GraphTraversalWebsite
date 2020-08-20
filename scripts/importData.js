@@ -1,5 +1,5 @@
 import {
-    parseResponseText
+    toCsvFile
 } from "./csv.js";
 
 class Manifest {
@@ -111,7 +111,7 @@ async function downloadManifest(url){
 async function downloadVersionLog(url){
     let rawText = await downloadFile(url);
     let vlog = new VersionLog();
-    let csv = parseResponseText(rawText);
+    let csv = toCsvFile(rawText);
 
     const headers = csv.getHeaders();
     const numCols = headers.length;
@@ -158,9 +158,9 @@ async function getLatestGraph(versionLogUrl, version, graph){
     let edgeText = await downloadFile(latestManifest.getEdgeUrl());
     let labelText = await downloadFile(latestManifest.getLabelUrl());
     console.log(labelText);
-    let vertexFile = parseResponseText(vertexText);
-    let edgeFile = parseResponseText(edgeText, false); // has no headers
-    let labelFile = parseResponseText(labelText);
+    let vertexFile = toCsvFile(vertexText);
+    let edgeFile = toCsvFile(edgeText, false); // has no headers
+    let labelFile = toCsvFile(labelText);
     console.log(labelFile.toString());
     graph.parseVertexCsv(vertexFile);
     graph.parseEdgeCsv(edgeFile);
