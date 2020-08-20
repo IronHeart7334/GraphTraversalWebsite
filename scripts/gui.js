@@ -2,12 +2,19 @@
 
 */
 
-class InputBox {
+class ElementInterface {
     constructor(id){
         if(!id.startsWith("#")){
             id = "#" + id;
         }
         this.elementSel = $(id);
+        this.element = this.elementSel[0];
+    }
+}
+
+class InputBox extends ElementInterface {
+    constructor(id){
+        super(id);
     }
 
     addOptions(options){
@@ -23,17 +30,20 @@ class InputBox {
     }
 }
 
-class CalcPathForm {
+class CalcPathForm extends ElementInterface {
     constructor(formId, startBoxId, endBoxId){
-        if(!formId.startsWith("#")){
-            formId = "#" + formId;
-        }
+        super(formId);
         this.startBox = new InputBox(startBoxId);
         this.endBox = new InputBox(endBoxId);
-
-        this.elementSel = $(formId);
+        this.onSubmit = (start, end)=>{
+            console.log("Default onSubmit for CalcPathForm: ", start, end);
+        };
         this.elementSel.submit((e)=>{
-            console.log(e);
+            try {
+                this.onSubmit(this.startBox.getSelectedOption(), this.endBox.getSelectedOption());
+            } catch(err){
+                console.error(err);
+            }
             e.preventDefault();
         });
     }
@@ -42,6 +52,15 @@ class CalcPathForm {
         this.startBox.addOptions(options);
         this.endBox.addOptions(options);
     }
+
+    /*
+    Sets the function which should be fired when the user clicks the "Find Path" button.
+    func should be a biconsumer, accepting two strings: the labels selected by the user
+    via this' start- and end-box respectively.
+    */
+    setOnSubmit(func){
+        this.onSubmit = func;
+    }
 }
 
 const VERTEX_AND_EDGE_COLOR = "blue";
@@ -49,12 +68,10 @@ const VERTEX_AND_EDGE_COLOR = "blue";
 // may still need the vertex space to canvas space conversion
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
-class Canvas {
+class Canvas extends ElementInterface {
     constructor(id){
-        if(!id.startsWith("#")){
-            id = "#" + id;
-        }
-        this.elementSel = $(id);
+        super(id);
+
         this.draw = this.elementSel.get(0).getContext("2d");
         this.draw.fillStyle = VERTEX_AND_EDGE_COLOR;
         this.draw.strokeStyle = VERTEX_AND_EDGE_COLOR;
@@ -75,7 +92,7 @@ class Canvas {
         this.clickStart = [null, null];
 
         // listen for beginning to drag
-        this.elementSel[0].addEventListener("mousedown", (e)=>{
+        this.element.addEventListener("mousedown", (e)=>{
             //console.log("Mousedown", e);
             this.clickStart = this.getMouseCoordsOnCanvas(e);
             //console.log(this.clickStart);
@@ -87,7 +104,7 @@ class Canvas {
         they drag their mouse to. Note that this method should not
         alter panX or panY, as that distrupts calculations.
         */
-        this.elementSel[0].addEventListener("mousemove", (e)=>{
+        this.element.addEventListener("mousemove", (e)=>{
             if(e.buttons === 1){ // left mouse button is held.
                 //console.log(e);
                 let newCoords = this.getMouseCoordsOnCanvas(e);
@@ -102,7 +119,7 @@ class Canvas {
         deltas they want to offset the canvas by. Increase the pan
         coordinates by these drag deltas, and reset the drag information.
         */
-        this.elementSel[0].addEventListener("mouseup", (e)=>{
+        this.element.addEventListener("mouseup", (e)=>{
             this.clickStart = [null, null];
             this.panX += this.dragDeltaX;
             this.panY += this.dragDeltaY;
@@ -112,7 +129,7 @@ class Canvas {
         });
 
         // handle zooming
-        this.elementSel[0].addEventListener("wheel", (e)=>{
+        this.element.addEventListener("wheel", (e)=>{
             //console.log(e);
             if(e.shiftKey){
                 // https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onwheel
@@ -195,9 +212,6 @@ class Canvas {
     }
 }
 
-function linkGui(options={}){
-
-}
 
 export {
     CalcPathForm,
