@@ -28,10 +28,7 @@ canvas.repaint();
 getLatestGraph(VERSION_LOG_URL, "wayfinding", graph).then(()=>{
     form.addOptions(graph.getAllLabels());
     form.setOnSubmit((startLabel, endLabel)=>{
-        let newPath = graph.findPath(
-            graph.getVertexByLabel(startLabel).id,
-            graph.getVertexByLabel(endLabel).id
-        );
+        let newPath = graph.findPath(startLabel, endLabel);
         canvas.setPath(newPath);
         canvas.repaint();
     });

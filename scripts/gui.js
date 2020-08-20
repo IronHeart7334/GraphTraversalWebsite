@@ -63,7 +63,7 @@ class CalcPathForm extends ElementInterface {
     }
 }
 
-const VERTEX_AND_EDGE_COLOR = "blue";
+const VERTEX_COLOR = "blue";
 
 // may still need the vertex space to canvas space conversion
 
@@ -73,8 +73,8 @@ class Canvas extends ElementInterface {
         super(id);
 
         this.draw = this.elementSel.get(0).getContext("2d");
-        this.draw.fillStyle = VERTEX_AND_EDGE_COLOR;
-        this.draw.strokeStyle = VERTEX_AND_EDGE_COLOR;
+        this.draw.fillStyle = VERTEX_COLOR;
+        this.draw.strokeStyle = "black";
         this.renderedGraph = null;
         this.renderedPath = null;
 
@@ -209,6 +209,10 @@ class Canvas extends ElementInterface {
         this.draw.moveTo(x1, y1);
         this.draw.lineTo(x2, y2);
         this.draw.stroke();
+    }
+
+    text(msg, x, y){
+        this.draw.strokeText(msg, x, y);
     }
 }
 

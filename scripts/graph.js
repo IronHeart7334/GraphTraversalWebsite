@@ -7,43 +7,6 @@ class Vertex {
         this.id = id;
         this.x = x;
         this.y = y;
-
-        this.neighborIds = [];
-        this.labels = [];
-    }
-
-    isAdjTo(id){
-        // binary search
-        let min = 0;
-        let max = this.neighborIds.length;
-        let mid = parseInt((min + max) / 2);
-        let isAdj = false;
-        while(!isAdj && min < max){
-            if(this.neighborIds[mid] < id){
-                min = mid + 1;
-            } else if(this.neighborIds[mid] > id){
-                max = mid - 1;
-            } else {
-                isAdj = true;
-            }
-            mid = parseInt((min + max) / 2);
-        }
-        return isAdj;
-    }
-
-    addNeighbor(neighborId){
-        if(!this.isAdjTo(neighborId)){
-            // perform insertion sort
-            let insertIdx = this.neighborIds.length;
-            let temp;
-            this.neighborIds.push(neighborId);
-            while(insertIdx > 0 && this.neighborIds[insertIdx - 1] > neighborId){
-                temp = this.neighborIds[insertIdx - 1];
-                this.neighborIds[insertIdx - 1] = neighborId;
-                this.neighborIds[insertIdx] = temp;
-                insertIdx--;
-            }
-        }
     }
 
     distanceFrom(vertex2){
@@ -59,6 +22,7 @@ class Vertex {
     from gui.js
     */
     draw(canvas){
+        canvas.text("" + this.id, this.x, this.y);
         canvas.rect(this.x, this.y, 20, 20);
     }
 }
@@ -307,18 +271,29 @@ class Graph {
         if(DEBUG){
             console.log("=== BEGIN FIND PATH ===");
         }
+
+        // check to see if start and end IDs are IDs or labels
+        let start = (isNaN(parseInt(startId))) ? this.getVertexByLabel(startId) : this.getVertexById(parseInt(startId));
+        let end = (isNaN(parseInt(endId))) ? this.getVertexByLabel(endId) : this.getVertexById(parseInt(endId));
+        if(start == null){
+            throw new Error("Invalid startId: " + startId);
+        }
+        if(end == null){
+            throw new Error("Invalid endId: " + endId);
+        }
+
         // setup
         let path = new Path();
         let travelLog = []; // use an array as a stack
         let travelHeap = new PathStepMinHeap();
         let visited = new Map();
-        let currVertex = this.getVertexById(startId);
+        let currVertex = start;
         let currStep = new PathStep(new Edge(currVertex, currVertex), 0);
 
         // find the path
         travelLog.push(currStep);
         visited.set(currStep.edge.from.id, true);
-        while(currVertex.id !== endId){
+        while(currVertex !== end){
             // find every edge leading from currVertex...
             // ... add all edges to unvisited vertices to the travel heap
             this.edges.get(currVertex).filter((edge)=>!visited.has(edge.to.id)).forEach((edge)=>{
@@ -358,7 +333,7 @@ class Graph {
         // backtrack to construct the optimal path
         let accumulatedDistance = travelLog[travelLog.length - 1].accumulatedDistance; // the length the optimal path will have
         let reversed = [];
-        while(travelLog.length !== 0 && currVertex.id !== startId){
+        while(travelLog.length !== 0 && currVertex !== start){
             currStep = travelLog.pop();
             //                                    check for equality between floating point numbers
             if(currStep.edge.to === currVertex && Math.abs(currStep.accumulatedDistance - accumulatedDistance) < 0.001){
@@ -373,7 +348,7 @@ class Graph {
             }
         }
 
-        path.addVertex(this.getVertexById(startId));
+        path.addVertex(start);
         while(reversed.length !== 0){
             path.addVertex(reversed.pop());
         }
@@ -537,7 +512,5 @@ class PathStepMinHeap {
 }
 
 export {
-    Vertex,
-    Path,
     Graph
 };
