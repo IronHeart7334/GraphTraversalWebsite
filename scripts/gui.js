@@ -73,6 +73,13 @@ class Canvas extends ElementInterface {
         super(id);
 
         this.draw = this.elementSel.get(0).getContext("2d");
+
+        //https://medium.com/wdstack/fixing-html5-2d-canvas-blur-8ebe27db07da
+        // fix blurry canvas
+        let dpi = window.devicePixelRatio;
+        this.element.setAttribute("width", dpi * getComputedStyle(this.element).getPropertyValue("width").slice(0, -2));
+        this.element.setAttribute("height", dpi * getComputedStyle(this.element).getPropertyValue("height").slice(0, -2));
+
         this.draw.fillStyle = VERTEX_COLOR;
         this.draw.strokeStyle = "black";
         this.renderedGraph = null;
@@ -152,6 +159,24 @@ class Canvas extends ElementInterface {
         this.renderedPath = path;
     }
 
+    tx(vertexSpaceX){
+        let ret = vertexSpaceX;
+        if(this.renderedGraph != null){
+            let percRight = parseFloat(vertexSpaceX - this.renderedGraph.getVertexById(-1).x) / (this.renderedGraph.getVertexById(-2).x - this.renderedGraph.getVertexById(-1).x);
+            ret = percRight * this.renderedGraph.image.width;
+        }
+        return ret;
+    }
+
+    ty(vertexSpaceY){
+        let ret = vertexSpaceY;
+        if(this.renderedGraph != null){
+            let percDown = parseFloat(vertexSpaceY - this.renderedGraph.getVertexById(-1).y) / (this.renderedGraph.getVertexById(-2).y - this.renderedGraph.getVertexById(-1).y);
+            ret = percDown * this.renderedGraph.image.height;
+        }
+        return ret;
+    }
+
     repaint(){
         if(this.scaleFactor < 0.2){
             this.scaleFactor = 0.2;
@@ -178,8 +203,9 @@ class Canvas extends ElementInterface {
 
         this.draw.setTransform(1, 0, 0, 1, 0, 0); // reset to identity matrix
         this.draw.clearRect(0, 0, this.elementSel[0].scrollWidth, this.elementSel[0].scrollHeight);
-        this.draw.translate(0.5 + this.panX + this.dragDeltaX, 0.5 + this.panY + this.dragDeltaY); // 0.5 fixes blurring issues
+        this.draw.translate(0.5 + parseInt(this.panX + this.dragDeltaX), 0.5 + parseInt(this.panY + this.dragDeltaY)); // 0.5 fixes blurring issues
         this.draw.scale(this.scaleFactor, this.scaleFactor);
+        
         if(this.renderedGraph != null){
             this.renderedGraph.draw(this);
         }
@@ -192,8 +218,11 @@ class Canvas extends ElementInterface {
     /*
     Drawing methods
     These should be invoked by graph elements.
-    Input is in vertex-space, so I may need to
-    apply transformations to the parameters
+    Input is in vertex-space, so these methods
+    automatically transform the coordinates to
+    image space, assuming vertex -1 marks the
+    upper-left corner of the image, and -2 marks
+    the lower-right.
     */
 
     drawImage(img){
@@ -201,18 +230,18 @@ class Canvas extends ElementInterface {
     }
 
     rect(x, y, w, h){
-        this.draw.fillRect(x, y, w, h);
+        this.draw.fillRect(this.tx(x), this.ty(y), w, h);
     }
 
     line(x1, y1, x2, y2){
         this.draw.beginPath();
-        this.draw.moveTo(x1, y1);
-        this.draw.lineTo(x2, y2);
+        this.draw.moveTo(this.tx(x1), this.ty(y1));
+        this.draw.lineTo(this.tx(x2), this.ty(y2));
         this.draw.stroke();
     }
 
     text(msg, x, y){
-        this.draw.strokeText(msg, x, y);
+        this.draw.strokeText(msg, this.tx(x), this.ty(y));
     }
 }
 
