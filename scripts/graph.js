@@ -1,7 +1,25 @@
 /*
-This module handles graph vertices, edges, and paths.
+This module handles graph related content, such as
+- Graphs
+- Vertices
+- Edges
+- Paths
+
+The graph data used by this program follows two criteria:
+- The graph is antireflexive: There exists no such Edge e and Vertex v such that e maps v to v. In lay terms, no vertex is connected to itself.
+- the graph is symetric: for every Edge e1, there exists an Edge e2 such that if e1 maps v1 to v2, e2 maps v2 to v1. Every edge is two-way.
 */
 
+/*
+A vertex is a cartesian coordinate pair
+with an associated ID. The coordinates are
+measured off of an arbitrary, unknown coordinate
+system, henceforth referred to as "vertex-space".
+The vertex with ID of -1 marks the origin of the
+vertex-space, while the vertex with ID of -2 marks
+the lower-right corner of the image overlaid behind
+the graph.
+*/
 class Vertex {
     constructor(id, x, y){
         this.id = id;
@@ -27,6 +45,12 @@ class Vertex {
     }
 }
 
+/*
+An Edge marks a connection between two vertices.
+Within the context of the program, an edge reprensents
+any navigable path in the environment represented by the
+graph.
+*/
 class Edge {
     /*
     from and to are Vertex objects
@@ -46,22 +70,33 @@ class Edge {
     }
 }
 
+/*
+A Path is an acyclic chain of vertices in the graph. It retains a list of edges
+which can be traversed to get from the first vertex to the last.
+*/
 class Path {
     constructor(){
         this.vertices = [];
         this.edges = [];
     }
 
+    /*
+    Adds a vertex to this path,
+    and automatically adds an
+    edge between the new vertex
+    and the last vertex added to
+    this before invoking this method.
+
+    I may eventually change this to
+    addEdge instead, but that may
+    break paths with a single vertex.
+    */
     addVertex(vertex){
         if(this.vertices.length >= 1){
             // add edge from the current end of the vertex list to the new end
             this.edges.push(new Edge(this.vertices[this.vertices.length - 1], vertex));
         }
         this.vertices.push(vertex);
-    }
-
-    getVertices(){
-        return this.vertices;
     }
 
     toString(){
@@ -73,6 +108,16 @@ class Path {
     }
 }
 
+/*
+A Graph represents a real-world, traversable location,
+and provides methods for computing paths to navigate through
+that location. It is a collection of the following objects:
+- Vertices, which represent the intersections of navigable routes in the real world.
+- Edges, which act as pieces of the aforementioned routes.
+- Labels, which serve as human-readable identifiers for vertices.
+  These maintain a many-to-one relationship with vertices, such that every label points to exactly one vertex, and every vertex may have 0 or more labels.
+- An image, which gives a visual representation of the real-world location this graph represents.
+*/
 class Graph {
     constructor(){
         /*
@@ -86,6 +131,16 @@ class Graph {
         this.bounds = [0, 0];
     }
 
+    /*
+    Note: this method may cause an error in calculating
+    bounds if it overrides the current rightmost or bottommost vertex.
+    For example,
+      graph.addVertex(new Vertex(0, 0, 0)); // bounds are [0, 0]
+      graph.addVertex(new Vertex(1, 2, 2)); // bounds are [2, 2]
+      graph.addVertex(new Vertex(1, 1, 1)); // error: bounds are still [2, 2], but they should be [1, 1]
+
+    Seeing as the program does not currently delete or override vertices, this should not be a problem.
+    */
     addVertex(vertex){
         this.idToVertex.set(vertex.id, vertex);
         if(vertex.x > this.bounds[0]){
@@ -109,6 +164,13 @@ class Graph {
         this.image.src = path;
     }
 
+    /*
+    Returns an array containing 2 numbers:
+    - the x-coordinate of the furthest right vertex on the graph
+    - the y-coordinate of the furthers down vertex on the graph
+    This method is currently only used for restricting panning in
+    the Canvas class.
+    */
     getBounds(){
         return this.bounds;
     }

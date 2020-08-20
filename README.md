@@ -7,3 +7,4 @@
 
 ## To Do ##
 * Convert version log from CSV format to JSON
+* Fix non-critical, theoretical error detailed in Graph::addVertex
