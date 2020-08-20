@@ -45,6 +45,8 @@ class Manifest {
     }
 }
 
+const DEFAULT_VERSION = "default";
+
 /*
 Version Logs are currently stored as CSV files to maintain backwards compatibility
 with the old Wayfinding system. Future versions of this application will instead
@@ -74,6 +76,10 @@ class VersionLog {
             throw new Error(`Version log does not contain version ${versionName}.`);
         }
         return this.versionNameToManifests.get(versionName);
+    }
+
+    getDefaultManifests(){
+        return this.getManifestsForVersion(DEFAULT_VERSION);
     }
 }
 
@@ -164,5 +170,6 @@ async function getLatestGraph(versionLogUrl, version, graph){
 
 export {
     downloadFile,
-    getLatestGraph
+    getLatestGraph,
+    DEFAULT_VERSION
 };

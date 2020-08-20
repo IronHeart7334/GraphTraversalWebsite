@@ -102,7 +102,7 @@ class Graph {
         this.edges.get(edge.from).push(edge);
     }
     addLabel(labelStr, vertex){
-        this.labelToVertex.set(labelStr, vertex);
+        this.labelToVertex.set(labelStr.toUpperCase(), vertex);
     }
     setImage(path){
         this.image = new Image();
@@ -259,7 +259,7 @@ class Graph {
     }
 
     getVertexByLabel(label){
-        return this.labelToVertex.get(label);
+        return this.labelToVertex.get(label.toUpperCase());
     }
 
 
