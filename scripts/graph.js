@@ -245,6 +245,7 @@ class Graph {
             if(!errorFlag){
                 // if we got here, we have 2 valid vertices
                 this.addEdge(new Edge(vertex1, vertex2));
+                this.addEdge(new Edge(vertex2, vertex1));
             }
         }
 
@@ -303,7 +304,9 @@ class Graph {
     */
     findPath(startId, endId){
         const DEBUG = true;
-
+        if(DEBUG){
+            console.log("=== BEGIN FIND PATH ===");
+        }
         // setup
         let path = new Path();
         let travelLog = []; // use an array as a stack
@@ -348,7 +351,7 @@ class Graph {
 
             if(DEBUG){
                 console.log("New travel log:");
-                console.log(travelLog);
+                console.log(travelLog.toString());
             }
         }
 
@@ -374,6 +377,11 @@ class Graph {
         while(reversed.length !== 0){
             path.addVertex(reversed.pop());
         }
+
+        if(DEBUG){
+            console.log("=== END FIND PATH ===");
+        }
+
         return path;
     }
 
