@@ -84,7 +84,14 @@ class VersionLog {
 }
 
 async function downloadFile(url){
-    let req = await fetch(url);
+    // https://stackoverflow.com/questions/29246444/fetch-how-do-you-make-a-non-cached-request
+    let headers = new Headers();
+    headers.append("pragma", "no-cache");
+    headers.append("cache-control", "no-cache");
+    let req = await fetch(new Request(url), {
+        method: "GET",
+        headers: headers
+    });
     let text = await req.text();
     return text;
 }

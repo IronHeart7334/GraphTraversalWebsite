@@ -1,5 +1,4 @@
 import {
-    downloadFile,
     getLatestGraph
 } from "./importData.js";
 
@@ -26,10 +25,14 @@ let parameters = getParams();
 let form = new CalcPathForm("form", "start", "end");
 let canvas = new Canvas("map");
 let graph = new Graph();
+
+if(parameters.debug){
+    console.log(parameters.toString());
+}
+
 canvas.setGraph(graph);
 canvas.repaint();
 
-//downloadFile("../data/testCoords.csv").then((t)=>console.log(t));
 getLatestGraph(VERSION_LOG_URL, parameters.version, graph).then(()=>{
     form.addOptions(graph.getAllLabels());
     form.setOnSubmit((startLabel, endLabel)=>{
@@ -37,10 +40,10 @@ getLatestGraph(VERSION_LOG_URL, parameters.version, graph).then(()=>{
         canvas.setPath(newPath);
         canvas.repaint();
     });
-    graph.prettyPrintGraphData();
+    if(parameters.debug){
+        graph.prettyPrintGraphData();
+    }
     let p = graph.findPath(parameters.start, parameters.end);
-    console.log(parameters.toString());
     canvas.setPath(p);
     canvas.repaint();
 });
-//downloadFile("../data/testData.csv").then((text)=>console.log(toCsvFile(text).toString()));

@@ -112,6 +112,12 @@ class Path {
     }
 }
 
+/*
+passes the header row of the given CsvFile to headersConsumer,
+then iterates over each row of the CsvFile's body, passing them
+to the rowConsumer. Any errors thrown by the rowConsumer are automatically
+caught and reported.
+*/
 function parseCsv(csvFile, headersConsumer, rowConsumer){
     let debug = getParams().debug;
     let errors = [];

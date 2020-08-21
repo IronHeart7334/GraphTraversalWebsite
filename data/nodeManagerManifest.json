@@ -1,8 +1,8 @@
 {
     "type" : "manifest",
     "comment" : "testing with data from the Wayfinding Node Manager",
-    "image" : "./data/fromWayfindingNodeManager/fromWayfindingNodeManagerMapImage.png",
-    "vertices" : "./data/fromWayfindingNodeManager/fromWayfindingNodeManagerNodeCoords.csv",
-    "edges" : "./data/fromWayfindingNodeManager/fromWayfindingNodeManagerNodeConn.csv",
-    "labels" : "./data/fromWayfindingNodeManager/fromWayfindingNodeManagerLabels.csv"
+    "image" : "./data/nodeManagerExport/mapImage.png",
+    "vertices" : "./data/nodeManagerExport/nodeCoords.csv",
+    "edges" : "./data/nodeManagerExport/nodeConn.csv",
+    "labels" : "./data/nodeManagerExport/labels.csv"
 }

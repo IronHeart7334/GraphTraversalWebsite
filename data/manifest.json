@@ -1,7 +1,7 @@
 {
     "type" : "manifest",
     "comment" : "only works if I make paths relative to the folder the application is hosted in when using localhost",
-    "image" : "./data/5f3.jpg",
+    "image" : "./data/blankImg.png",
     "vertices" : "./data/testCoords.csv",
     "edges" : "./data/edges.csv",
     "labels" : "./data/labels.csv"
