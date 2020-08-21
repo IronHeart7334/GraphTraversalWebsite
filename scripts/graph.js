@@ -10,6 +10,10 @@ The graph data used by this program follows two criteria:
 - the graph is symetric: for every Edge e1, there exists an Edge e2 such that if e1 maps v1 to v2, e2 maps v2 to v1. Every edge is two-way.
 */
 
+import {
+    getParams
+} from "./parameters.js";
+
 /*
 A vertex is a cartesian coordinate pair
 with an associated ID. The coordinates are
@@ -108,6 +112,44 @@ class Path {
     }
 }
 
+function parseCsv(csvFile, headersConsumer, rowConsumer){
+    let debug = getParams().debug;
+    let errors = [];
+    let errorFlag = false;
+    if(debug){
+        console.log("Parsing the following file: ");
+        console.log(csvFile.toString());
+    }
+
+    // do parsing
+    try {
+        headersConsumer(csvFile);
+    } catch(e){
+        errors.push("Fatal error while parsing headers: ");
+        errors.push(e);
+        errorFlag = true;
+    }
+
+    if(!errorFlag){
+        csvFile.getBody().forEach((row)=>{
+            try{
+                rowConsumer(row);
+            } catch(e){
+                errors.push(e);
+            }
+        });
+    }
+
+    if(debug){
+        if(errors.length === 0){
+            console.log("File parsed 100% successfully!");
+        } else {
+            console.error("Encountered a the following errors:");
+            errors.forEach((e)=>console.error(e));
+        }
+    }
+}
+
 /*
 A Graph represents a real-world, traversable location,
 and provides methods for computing paths to navigate through
@@ -185,135 +227,86 @@ class Graph {
     therein.
     */
     parseVertexCsv(csv){
-        console.log("Parsing the following vertex file:");
-        console.log(csv.toString());
-        let errors = [];
-        let idCol = csv.getColIdx("id");
-        let xCol = csv.getColIdx("x");
-        let yCol = csv.getColIdx("y");
-        let data = csv.getBody();
-        let row;
+        let idCol;
+        let xCol;
+        let yCol;
         let id;
         let x;
         let y;
-        let errorFlag = false;
-        for(let rowNum = 0; rowNum < data.length; rowNum++){
-            errorFlag = false;
-            row = data[rowNum];
+        parseCsv(csv, (csvF)=>{
+            idCol = csvF.getColIdx("id");
+            xCol = csvF.getColIdx("x");
+            yCol = csvF.getColIdx("y");
+        }, (row)=>{
             id = parseInt(row[idCol]);
             x = parseInt(row[xCol]);
             y = parseInt(row[yCol]);
             if(isNaN(id)){
-                errors.push(`Invalid ID: ${row[idCol]}`);
-                errorFlag = true;
+                throw new Error(`Invalid ID: ${row[idCol]}`);
             }
             if(isNaN(x)){
-                errors.push(`Invalid X coordinate: ${row[xCol]}`);
-                errorFlag = true;
+                throw new Error(`Invalid X coordinate: ${row[xCol]}`);
             }
             if(isNaN(y)){
-                errors.push(`Invalid Y coordinate: ${row[yCol]}`);
-                errorFlag = true;
+                throw new Error(`Invalid Y coordinate: ${row[yCol]}`);
             }
-
-            if(!errorFlag){
-                this.addVertex(new Vertex(id, x, y));
-            }
-            errorFlag = false;
-        }
-        if(errors.length === 0){
-            console.log("File parsed 100% successfully!");
-        } else {
-            console.error("Encountered a the following errors:");
-            errors.forEach((e)=>console.error(e));
-        }
+            // if we got here, all parameters are valid.
+            this.addVertex(new Vertex(id, x, y));
+        });
     }
 
     parseEdgeCsv(csv){
-        console.log("Parsing the following edge file:");
-        console.log(csv.toString());
-        let body = csv.getBody();
-        let errors = [];
-        let row;
         let id1;
         let id2;
         let vertex1;
         let vertex2;
-        let errorFlag;
-        for(let rowNum = 0; rowNum < body.length; rowNum++){
-            errorFlag = false;
-            row = body[rowNum];
+        parseCsv(csv, (csvF)=>{
+            // do nothing with headers
+        }, (row)=>{
             id1 = parseInt(row[0]);
             id2 = parseInt(row[1]);
             if(isNaN(id1)){
-                errors.push(`Invalid ID in first column: ${row.toString()}`);
-                errorFlag = true;
+                throw new Error(`Invalid ID in first column: ${row.toString()}`);
             }
             if(isNaN(id2)){
-                errors.push(`Invalid ID in second column: ${row.toString()}`);
-                errorFlag = true;
+                throw new Error(`Invalid ID in second column: ${row.toString()}`);
             }
 
-            if(!errorFlag){
-                // now see if I have the proper vertices
-                vertex1 = this.idToVertex.get(id1);
-                vertex2 = this.idToVertex.get(id2);
-                if(vertex1 == null){
-                    errors.push(`Graph contains no vertex with ID ${id1}`);
-                    errorFlag = true;
-                }
-                if(vertex2 == null){
-                    errors.push(`Graph contains no vertex with ID ${id2}`);
-                    errorFlag = true;
-                }
+            // now see if I have the proper vertices
+            vertex1 = this.idToVertex.get(id1);
+            vertex2 = this.idToVertex.get(id2);
+            if(vertex1 == null){
+                throw new Error(`Graph contains no vertex with ID ${id1}`);
+            }
+            if(vertex2 == null){
+                throw new Error(`Graph contains no vertex with ID ${id2}`);
             }
 
-            if(!errorFlag){
-                // if we got here, we have 2 valid vertices
-                this.addEdge(new Edge(vertex1, vertex2));
-                this.addEdge(new Edge(vertex2, vertex1));
-            }
-        }
-
-        if(errors.length === 0){
-            console.log("File parsed 100% successfully!");
-        } else {
-            console.error("Encountered a the following errors:");
-            errors.forEach((e)=>console.error(e));
-        }
+            // if we got here, we have 2 valid vertices
+            this.addEdge(new Edge(vertex1, vertex2));
+            this.addEdge(new Edge(vertex2, vertex1));
+        });
     }
 
     parseLabelCsv(csv){
-        console.log("Parsing the following label file:");
-        console.log(csv.toString());
-        let body = csv.getBody();
-        let errors = [];
-        let labelCol = csv.getColIdx("label");
-        let idCol = csv.getColIdx("id");
-        let row;
+        let labelCol;
+        let idCol;
         let label;
         let id;
-
-        for(let rowNum = 0; rowNum < body.length; rowNum++){
-            row = body[rowNum];
+        parseCsv(csv, (csvF)=>{
+            labelCol = csv.getColIdx("label");
+            idCol = csv.getColIdx("id");
+        }, (row)=>{
             label = row[labelCol].toString();
             id = parseInt(row[idCol]);
             if(isNaN(id)){
-                errors.push(`Invalid id in row ${row.toString()}`);
+                throw new Error(`Invalid id in row ${row.toString()}`);
             } else if(this.getVertexById(id) == null){
-                errors.push(`Graph contains no vertex with ID ${id}`);
+                throw new Error(`Graph contains no vertex with ID ${id}`);
             } else {
                 this.addLabel(label, this.getVertexById(id));
             }
-        }
-
-
-        if(errors.length === 0){
-            console.log("File parsed 100% successfully!");
-        } else {
-            console.error("Encountered a the following errors:");
-            errors.forEach((e)=>console.error(e));
-        }
+        });
     }
 
     getVertexById(id){
@@ -329,7 +322,7 @@ class Graph {
     Dijkstra's algorithm
     */
     findPath(startId, endId){
-        const DEBUG = true;
+        const DEBUG = getParams().debug;
         if(DEBUG){
             console.log("=== BEGIN FIND PATH ===");
         }

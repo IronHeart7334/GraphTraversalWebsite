@@ -18,7 +18,6 @@ class InputBox extends ElementInterface {
     }
 
     addOptions(options){
-        console.log(this.elementSel);
         options.forEach((option)=>{
             this.elementSel.append(`<option value="${option}">${option}</option>`);
 
@@ -205,7 +204,7 @@ class Canvas extends ElementInterface {
         this.draw.clearRect(0, 0, this.elementSel[0].scrollWidth, this.elementSel[0].scrollHeight);
         this.draw.translate(0.5 + parseInt(this.panX + this.dragDeltaX), 0.5 + parseInt(this.panY + this.dragDeltaY)); // 0.5 fixes blurring issues
         this.draw.scale(this.scaleFactor, this.scaleFactor);
-        
+
         if(this.renderedGraph != null){
             this.renderedGraph.draw(this);
         }
