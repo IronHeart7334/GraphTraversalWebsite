@@ -9,33 +9,7 @@ class Manifest {
         this.edgeUrl = null;
         this.labelUrl = null;
     }
-
-    setMapUrl(url){
-        this.mapUrl = url;
-    }
-    setVertexUrl(url){
-        this.vertexUrl = url;
-    }
-    setEdgeUrl(url){
-        this.edgeUrl = url;
-    }
-    setLabelUrl(url){
-        this.labelUrl = url;
-    }
-
-    getMapUrl(){
-        return this.mapUrl;
-    }
-    getVertexUrl(){
-        return this.vertexUrl;
-    }
-    getEdgeUrl(){
-        return this.edgeUrl;
-    }
-    getLabelUrl(){
-        return this.labelUrl;
-    }
-
+    
     toString(){
         return `Manifest:
             Map Image : ${this.mapUrl}
@@ -106,10 +80,10 @@ async function downloadManifest(url){
     let text = await downloadFile(url);
     console.log(text);
     let json = JSON.parse(text.trim());
-    man.setMapUrl(json["image"]);
-    man.setVertexUrl(json["vertices"]);
-    man.setEdgeUrl(json["edges"]);
-    man.setLabelUrl(json["labels"]);
+    man.mapUrl = json["image"];
+    man.vertexUrl = json["vertices"];
+    man.edgeUrl = json["edges"];
+    man.labelUrl = json["labels"];
 
     console.log(man.toString());
     return man;
@@ -161,9 +135,9 @@ async function getLatestManifest(versionLogUrl, version){
 
 async function getLatestGraph(versionLogUrl, version, graph){
     let latestManifest = await getLatestManifest(versionLogUrl, version);
-    let vertexText = await downloadFile(latestManifest.getVertexUrl());
-    let edgeText = await downloadFile(latestManifest.getEdgeUrl());
-    let labelText = await downloadFile(latestManifest.getLabelUrl());
+    let vertexText = await downloadFile(latestManifest.vertexUrl);
+    let edgeText = await downloadFile(latestManifest.edgeUrl);
+    let labelText = await downloadFile(latestManifest.labelUrl);
     console.log(labelText);
     let vertexFile = toCsvFile(vertexText);
     let edgeFile = toCsvFile(edgeText, false); // has no headers
@@ -172,7 +146,7 @@ async function getLatestGraph(versionLogUrl, version, graph){
     graph.parseVertexCsv(vertexFile);
     graph.parseEdgeCsv(edgeFile);
     graph.parseLabelCsv(labelFile);
-    graph.setImage(latestManifest.getMapUrl());
+    graph.setImage(latestManifest.mapUrl);
 }
 
 export {
