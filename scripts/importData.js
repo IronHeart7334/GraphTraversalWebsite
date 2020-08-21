@@ -1,7 +1,46 @@
 import {
     toCsvFile
 } from "./csv.js";
+import {
+    getParams
+} from "./parameters.js";
 
+
+
+const DEFAULT_VERSION = "default";
+
+
+async function downloadFile(url){
+    // https://stackoverflow.com/questions/29246444/fetch-how-do-you-make-a-non-cached-request
+    let headers = new Headers();
+    headers.append("pragma", "no-cache");
+    headers.append("cache-control", "no-cache");
+    let req = await fetch(new Request(url), {
+        method: "GET",
+        headers: headers
+    });
+    let text = await req.text();
+    return text;
+}
+
+// CORS issues
+async function downloadGoogleDriveFile(fileId){
+    return downloadFile(`https://drive.google.com/uc?export=download&id=${fileId}`);
+}
+
+
+/*
+A manifest details which files
+belong together to form a graph.
+A manifest is stored as a JSON file
+with the following attributes:
+- image
+- vertices
+- edges
+- labels
+Each containing a URL to the appropriate
+resource.
+*/
 class Manifest {
     constructor(){
         this.mapUrl = null;
@@ -9,7 +48,7 @@ class Manifest {
         this.edgeUrl = null;
         this.labelUrl = null;
     }
-    
+
     toString(){
         return `Manifest:
             Map Image : ${this.mapUrl}
@@ -18,8 +57,23 @@ class Manifest {
             Labels : ${this.labelUrl}`
     }
 }
+async function downloadManifest(url){
+    let man = new Manifest();
+    let text = await downloadFile(url);
 
-const DEFAULT_VERSION = "default";
+    let json = JSON.parse(text.trim());
+    man.mapUrl = json["image"];
+    man.vertexUrl = json["vertices"];
+    man.edgeUrl = json["edges"];
+    man.labelUrl = json["labels"];
+
+    if(getParams().debug){
+        console.log("Downloaded manifest: " + man.toString());
+    }
+    return man;
+}
+
+
 
 /*
 Version Logs are currently stored as CSV files to maintain backwards compatibility
@@ -56,39 +110,6 @@ class VersionLog {
         return this.getManifestsForVersion(DEFAULT_VERSION);
     }
 }
-
-async function downloadFile(url){
-    // https://stackoverflow.com/questions/29246444/fetch-how-do-you-make-a-non-cached-request
-    let headers = new Headers();
-    headers.append("pragma", "no-cache");
-    headers.append("cache-control", "no-cache");
-    let req = await fetch(new Request(url), {
-        method: "GET",
-        headers: headers
-    });
-    let text = await req.text();
-    return text;
-}
-
-// CORS issues
-async function downloadGoogleDriveFile(fileId){
-    return downloadFile(`https://drive.google.com/uc?export=download&id=${fileId}`);
-}
-
-async function downloadManifest(url){
-    let man = new Manifest();
-    let text = await downloadFile(url);
-    console.log(text);
-    let json = JSON.parse(text.trim());
-    man.mapUrl = json["image"];
-    man.vertexUrl = json["vertices"];
-    man.edgeUrl = json["edges"];
-    man.labelUrl = json["labels"];
-
-    console.log(man.toString());
-    return man;
-}
-
 async function downloadVersionLog(url){
     let rawText = await downloadFile(url);
     let vlog = new VersionLog();
@@ -110,6 +131,7 @@ async function downloadVersionLog(url){
     }
     return vlog;
 }
+
 
 async function getLatestManifest(versionLogUrl, version){
     // first, download the given version log.
@@ -138,16 +160,15 @@ async function getLatestGraph(versionLogUrl, version, graph){
     let vertexText = await downloadFile(latestManifest.vertexUrl);
     let edgeText = await downloadFile(latestManifest.edgeUrl);
     let labelText = await downloadFile(latestManifest.labelUrl);
-    console.log(labelText);
     let vertexFile = toCsvFile(vertexText);
     let edgeFile = toCsvFile(edgeText, false); // has no headers
     let labelFile = toCsvFile(labelText);
-    console.log(labelFile.toString());
     graph.parseVertexCsv(vertexFile);
     graph.parseEdgeCsv(edgeFile);
     graph.parseLabelCsv(labelFile);
     graph.setImage(latestManifest.mapUrl);
 }
+
 
 export {
     downloadFile,
