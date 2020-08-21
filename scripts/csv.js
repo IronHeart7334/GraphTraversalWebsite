@@ -36,9 +36,10 @@ more usable format.
 const CLEAN_CELL = (cell)=>{
     let ret = cell.toString().trim();
     // remove quotes surrounding the value
-    while((ret.startswith('"') && ret.endswith('"')) || (ret.startswith("'") && ret.endswith("'"))){
+    while((ret.startsWith('"') && ret.endsWith('"')) || (ret.startsWith("'") && ret.endsWith("'"))){
         ret = ret.substring(1, ret.length - 2);
     }
+    return ret;
 };
 const CLEAN_HEADER = (header)=>{
     return CLEAN_CELL(header).toUpperCase();
@@ -106,9 +107,13 @@ class CsvFile {
     the length of the contents must match the number of headers.
     */
     addRow(contents){
+        /*
+        This does not work for version logs, so I'll un-comment this once that
+        is stored as JSON instead of CSV
+         
         if(this.containsHeaders() || contents.length !== this.headerRow.length){
             throw new Error(`Row ${contents} does not contain the right number of columns. It should contain exactly ${this.headerRow.length}.`);
-        }
+        }*/
         this.body.push(contents.map((cell)=>CLEAN_CELL(cell)));
     }
 
